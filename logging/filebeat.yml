@@ -1,0 +1,23 @@
+filebeat.inputs:
+  - type: container
+    paths:
+      - /var/lib/docker/containers/*/*.log
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+
+  - type: log
+    paths:
+      - /var/log/xdevops/*.log
+    fields:
+      type: app_log
+    fields_under_root: true
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+logging.level: info

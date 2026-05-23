@@ -1,0 +1,149 @@
+---
+# ── Namespace ────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: xdevops
+
+---
+# ── Sample App Deployment ─────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+  namespace: xdevops
+  labels:
+    app: sample-app
+    managed-by: xdevops-ai
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-app
+  template:
+    metadata:
+      labels:
+        app: sample-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: sample-app
+          image: xdevops-sample-app:latest
+          imagePullPolicy: Never          # for local minikube/kind
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+---
+# ── Sample App Service ────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-app
+  namespace: xdevops
+spec:
+  selector:
+    app: sample-app
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+# ── X-DevOps Backend Deployment ───────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xdevops-backend
+  namespace: xdevops
+  labels:
+    app: xdevops-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xdevops-backend
+  template:
+    metadata:
+      labels:
+        app: xdevops-backend
+    spec:
+      containers:
+        - name: xdevops-backend
+          image: xdevops-backend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DRY_RUN
+              value: "false"             # set false for live healing
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          emptyDir: {}
+
+---
+# ── X-DevOps Backend Service ─────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: xdevops-backend
+  namespace: xdevops
+spec:
+  selector:
+    app: xdevops-backend
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: NodePort
+
+---
+# ── Horizontal Pod Autoscaler (for demo scaling scenario) ────────────────────
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sample-app-hpa
+  namespace: xdevops
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sample-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75

@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+
+# Testing
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+
+# Data / DB
+data/
+*.db
+*.sqlite3
+
+# Environment
+.env
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Docker
+*.log
+
+# Node (frontend deps if added later)
+node_modules/

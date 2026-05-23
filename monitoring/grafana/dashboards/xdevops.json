@@ -1,0 +1,129 @@
+{
+  "title": "X-DevOps Monitoring",
+  "uid": "xdevops-main",
+  "version": 1,
+  "schemaVersion": 38,
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "CPU Usage %",
+      "type": "gauge",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 8 },
+      "targets": [{
+        "expr": "app_cpu_usage_percent",
+        "legendFormat": "CPU"
+      }],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "thresholds": {
+          "steps": [
+            { "value": 0,  "color": "green" },
+            { "value": 70, "color": "yellow" },
+            { "value": 85, "color": "red" }
+          ]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Memory Usage %",
+      "type": "gauge",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 8 },
+      "targets": [{
+        "expr": "app_memory_usage_percent",
+        "legendFormat": "Memory"
+      }],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "thresholds": {
+          "steps": [
+            { "value": 0,  "color": "green" },
+            { "value": 75, "color": "yellow" },
+            { "value": 90, "color": "red" }
+          ]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Error Rate %",
+      "type": "gauge",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 8 },
+      "targets": [{
+        "expr": "app_error_rate_percent",
+        "legendFormat": "Error Rate"
+      }],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "thresholds": {
+          "steps": [
+            { "value": 0, "color": "green" },
+            { "value": 5, "color": "yellow" },
+            { "value": 15, "color": "red" }
+          ]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Pod Restart Count",
+      "type": "stat",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 8 },
+      "targets": [{
+        "expr": "app_pod_restart_count",
+        "legendFormat": "Restarts"
+      }],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "thresholds": {
+          "steps": [
+            { "value": 0, "color": "green" },
+            { "value": 3, "color": "red" }
+          ]
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "CPU Usage Over Time",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [{
+        "expr": "app_cpu_usage_percent",
+        "legendFormat": "CPU %"
+      }]
+    },
+    {
+      "id": 6,
+      "title": "Memory Usage Over Time",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [{
+        "expr": "app_memory_usage_percent",
+        "legendFormat": "Memory %"
+      }]
+    },
+    {
+      "id": 7,
+      "title": "Error Rate Over Time",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "targets": [{
+        "expr": "app_error_rate_percent",
+        "legendFormat": "Error Rate %"
+      }]
+    },
+    {
+      "id": 8,
+      "title": "Total HTTP Requests",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "targets": [{
+        "expr": "rate(app_requests_total[1m])",
+        "legendFormat": "{{status}} {{endpoint}}"
+      }]
+    }
+  ]
+}

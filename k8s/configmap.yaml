@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: xdevops-config
+  namespace: xdevops
+data:
+  DRY_RUN: "false"
+  API_PORT: "8000"
+  KUBE_NAMESPACE: "xdevops"
+  KUBE_SERVICE_NAME: "sample-app"
+  KUBE_SCALE_REPLICAS: "5"
+  PROMETHEUS_URL: "http://prometheus:9090"
+
+---
+# PersistentVolumeClaim for the SQLite learning database
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: xdevops-data-pvc
+  namespace: xdevops
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

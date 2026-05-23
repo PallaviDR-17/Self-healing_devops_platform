@@ -1,0 +1,42 @@
+---
+# ServiceAccount for X-DevOps AI engine
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: xdevops-healer
+  namespace: xdevops
+
+---
+# ClusterRole: allow the AI engine to restart/scale/rollback deployments
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: xdevops-healer-role
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "services", "nodes"]
+    verbs: ["get", "list", "watch", "delete"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch", "create"]
+
+---
+# Bind role to service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: xdevops-healer-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: xdevops-healer-role
+subjects:
+  - kind: ServiceAccount
+    name: xdevops-healer
+    namespace: xdevops
